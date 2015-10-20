@@ -1,3 +1,3 @@
 bool connect_wifi(void);
-void get_mac_addr(char *);
+char* get_mac_addr();
 void setup_wifi(void);

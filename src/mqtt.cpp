@@ -1,4 +1,5 @@
 #include <PubSubClient.h>
+#include "wifi.h"
 
 const char* mqtt_server = "mqtt";
 char mqtt_name[16];
@@ -19,12 +20,13 @@ bool connect_mqtt(PubSubClient client){
             Serial.print(".");
             delay(500);
         }
-        Serial.println('MQTT connected');
+        Serial.println();
+        Serial.println("MQTT connected");
     }
     return client.connected();
 }
 
-void send_metric(PubSubClient client, char *dev_id, char *type, char *value){
+void send_metric(PubSubClient client, char *root, char *dev_id, char *type, char *value){
     char topic[80];
     bool success;
 
@@ -34,7 +36,7 @@ void send_metric(PubSubClient client, char *dev_id, char *type, char *value){
         return;
     }
 
-    snprintf(topic, 75, "sensors/%s/%s", dev_id, type);
+    snprintf(topic, 75, "%s/%s/%s", root, dev_id, type);
     success = client.publish(topic, value);
 
     Serial.print("Sent ");
@@ -53,12 +55,20 @@ void send_metric(PubSubClient client, char *dev_id, char *type, long value){
     char str_value[10];
     itoa(value, str_value, 10);
 
-    send_metric(client, dev_id, type, str_value);
+    send_metric(client, (char *)"sensors", dev_id, type, str_value);
 }
 
 void send_metric(PubSubClient client, char *dev_id, char *type, float value){
     char str_value[10];
     dtostrf(value, 4, 2, str_value);
 
-    send_metric(client, dev_id, type, str_value);
+    send_metric(client, (char *)"sensors", dev_id, type, str_value);
+}
+
+// send uptime
+void send_uptime(PubSubClient client){
+    char str_value[10];
+
+    itoa(millis()/1000, str_value, 10);
+    send_metric(client, (char *)"devices", get_mac_addr(), (char *)"uptime", str_value);
 }
