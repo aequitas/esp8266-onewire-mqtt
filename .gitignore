@@ -3,4 +3,4 @@ esp01
 structure.hash
 .DS_Store
 .sconsign.dblite
-wifi_settings.h.gch
+*.gch
